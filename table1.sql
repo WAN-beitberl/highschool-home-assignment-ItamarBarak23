@@ -1,0 +1,15 @@
+CREATE TABLE sima.highschooll (
+  id INT NOT NULL,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  email text NOT NULL,
+  gender text NOT NULL,
+  ip_address text NOT NULL,
+  cm_height INT NOT NULL,
+  age INT NOT NULL,
+  has_car boolean NOT NULL,
+  car_color text NULL,
+  grade INT NOT NULL,
+  grade_avg DOUBLE NOT NULL,
+  identification_card INT NOT NULL,
+  PRIMARY KEY (`id`));
