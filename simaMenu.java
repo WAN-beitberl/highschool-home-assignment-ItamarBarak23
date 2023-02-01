@@ -127,29 +127,28 @@ public class simaMenu {
 		{
 			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/sima","root","Sunnybarak23");
 			
-			Statement st = con.createStatement();
-			ResultSet rs = st.executeQuery("select id, friend_id, other_friend_id from highschool_friendships");
+			PreparedStatement st= con.prepareStatement("SELECT id, friend_id, other_friend_id from highschool_friendships where id = ?");
+            st.setInt(1, checkId);
+			ResultSet rs= st.executeQuery(); 
 			
-			while(rs.next())
+			if(rs.next())
 			{
-				if(rs.getInt("id") == checkId)
-				{
 					friendId= rs.getInt("friend_id");
 					otherFriendId= rs.getInt("other_friend_id");
 			        System.out.println("friend: " + friendId + " other friend: " + otherFriendId);
-				}
 			}
 			
-            rs = st.executeQuery("select id, friend_id, other_friend_id from highschool_friendships");
+			st= con.prepareStatement("SELECT id, friend_id, other_friend_id from highschool_friendships where id = ? or id = ?");
+            st.setInt(1, friendId);
+            st.setInt(2, otherFriendId);
+			rs= st.executeQuery(); 
 			
 			while(rs.next())
 			{
-				if(rs.getInt("id") == friendId)
-			        System.out.println("friend of friend: " + rs.getInt("friend_id") + " friend of other friend: " + rs.getInt("other_friend_id"));
-				if(rs.getInt("id") == otherFriendId)
-			        System.out.println("friend of friend: " + rs.getInt("friend_id") + " friend of other friend: " + rs.getInt("other_friend_id"));
+			    System.out.println("friend of friend: " + rs.getInt("friend_id") + " other friend of friend: " + rs.getInt("other_friend_id"));
 			}
-
+			
+			
 			st.close();
 			con.close();
 		}
@@ -171,20 +170,26 @@ public class simaMenu {
 			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/sima","root","Sunnybarak23");
 			
 			Statement st = con.createStatement();
-			ResultSet rs = st.executeQuery("select id, friend_id, other_friend_id from highschool_friendships");
+			ResultSet rs = st.executeQuery("select id, friend_id, other_friend_id from highschool_friendships where friend_id between 1 And 1000 And other_friend_id between 1 And 1000");
 			
 			while(rs.next())
 			{
-				if(rs.getInt("friend_id") > 0 && rs.getInt("other_friend_id") > 0 && rs.getInt("friend_id") < 1001 && rs.getInt("other_friend_id") < 1001)
-					countPopular++;
-				else
-				{
-					if((rs.getInt("friend_id") > 0 && rs.getInt("other_friend_id") > 0) || (rs.getInt("friend_id") < 1001 && rs.getInt("other_friend_id") < 1001))
-						countRegular++;
-					else
-						countLonely++;
-				}
+				countPopular++;
 			}
+			
+			st = con.createStatement();
+			rs = st.executeQuery("select id, friend_id, other_friend_id from highschool_friendships where friend_id not between 1 And 1000 And other_friend_id not between 1 And 1000");
+				
+			while(rs.next())
+			{
+				countLonely++;
+			}
+			
+			st = con.createStatement();
+			rs = st.executeQuery("select id, friend_id, other_friend_id from highschool_friendships where friend_id not between 1 And 1000 And other_friend_id between 1 And 1000 or friend_id between 1 And 1000 And other_friend_id not between 1 And 1000");
+				
+			countRegular = 1000 - countPopular - countLonely;
+			
 			double pLonely = (countLonely / 1000) * 100;
 			double pRegular = (countRegular / 1000) * 100;
 			double pPopular = (countPopular / 1000) * 100;
@@ -208,18 +213,18 @@ public class simaMenu {
 		{
 			Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/sima","root","Sunnybarak23");
 			
-			Statement st=con.createStatement();
-			ResultSet rs=st.executeQuery("select id, grade_avg from studentGrade");
+            
+			PreparedStatement st= con.prepareStatement("SELECT grade_avg FROM studentgrades WHERE id = ?");
+            st.setInt(1, studentId);
+			ResultSet rs= st.executeQuery();
 			
-			while(rs.next())
-			{
-			    if(studentId == rs.getInt("id"))
-			        System.out.println("The average of the student is: " + rs.getDouble("grade_avg"));
-			}
+			if (rs.next())
+                System.out.println("The average grade of "
+                		+ "student " + studentId + " is: "
+                				+ "" + rs.getDouble("grade_avg"));
 			st.close();
 			con.close();
 		}
-		
 		catch(Exception e) 
 		{
 			System.out.println(e);
